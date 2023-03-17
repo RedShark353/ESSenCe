@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>ESSenCe</title>
+    <!--Original paper: Pafilis E, Buttigieg PL, Ferrell B, Pereira E, Schnetzer J, Arvanitidis C, Jensen LJ. EXTRACT: interactive extraction of environment metadata and term suggestion for metagenomic sample annotation. Database (Oxford). 2016 Feb 20;2016:baw005. doi: 10.1093/database/baw005. PMID: 26896844; PMCID: PMC4761108.-->
+    <link rel="stylesheet" type="text/css" href="style.css" />
+    <script src="https://mozilla.github.io/pdf.js/build/pdf.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/mammoth@1.4.9/mammoth.browser.min.js"></script>
+    <script>
+      function updateIframe() {
+        var textInput = document.getElementById("text-input").value;
+        var fileInput = document.getElementById("file-input").files[0];
+        var url = "http://tagger.jensenlab.org/ExtractPopup?document=";
+
+        if (textInput) {
+          url += encodeURIComponent(textInput);
+          document.getElementById("extract_iframe").src =
+            url +
+            "&entity_types=-1+-2+-21+-22+-23+-25+-26+-27+-36+9606&auto_detect=0";
+          console.log(document.getElementById("extract_iframe").src);
+        } else if (fileInput) {
+          //get file name
+          const fileName = fileInput.name.toLowerCase();
+          console.log(fileName);
+
+          var reader = new FileReader();
+          console.log("Ok");
+
+          reader.onload = function (event) {
+            if (fileName.endsWith(".txt") || fileName.endsWith(".text")) {
+              url += encodeURIComponent(event.target.result);
+              document.getElementById("extract_iframe").src =
+                url +
+                "&entity_types=-1+-2+-21+-22+-23+-25+-26+-27+-36+9606&auto_detect=0";
+              console.log(document.getElementById("extract_iframe").src);
+            } else if (
+              fileName.endsWith(".doc") ||
+              fileName.endsWith(".docx")
+            ) {
+              //Handle .docx
+              mammoth
+                .extractRawText({ arrayBuffer: reader.result })
+                .then((result) => {
+                  text = result.value;
+                  url += text;
+                  console.log(url);
+                  document.getElementById("extract_iframe").src =
+                    url +
+                    "&entity_types=-1+-2+-21+-22+-23+-25+-26+-27+-36+9606&auto_detect=0";
+                  console.log(document.getElementById("extract_iframe").src);
+                })
+                .done();
+            } else if (fileName.endsWith(".pdf")) {
+              // extract text from PDF file using PDF.js
+              const pdfjsLib = window["pdfjs-dist/build/pdf"];
+              pdfjsLib.GlobalWorkerOptions.workerSrc =
+                "https://mozilla.github.io/pdf.js/build/pdf.worker.js";
+              const loadingTask = pdfjsLib.getDocument(reader.result);
+              //let text = "";
+
+              loadingTask.promise.then((pdf) => {
+                const numPages = pdf.numPages;
+                for (let i = 1; i <= numPages; i++) {
+                  pdf.getPage(i).then((page) => {
+                    page.getTextContent().then((content) => {
+                      const pageText = content.items
+                        .map((item) => item.str)
+                        .join(" ");
+                      url += pageText + " ";
+                      if (i === numPages) {
+                        //console.log(url);
+                        //url += text;
+                        document.getElementById("extract_iframe").src =
+                          url +
+                          "&entity_types=-1+-2+-21+-22+-23+-25+-26+-27+-36+9606&auto_detect=0";
+                        console.log(
+                          document.getElementById("extract_iframe").src
+                        );
+                      }
+                    });
+                  });
+                }
+              });
+            }
+          };
+
+          if (fileName.endsWith(".txt") || fileName.endsWith(".text")) {
+            reader.readAsText(fileInput);
+          } else if (fileName.endsWith(".docx") || fileName.endsWith(".pdf")) {
+            reader.readAsArrayBuffer(fileInput);
+          } else {
+            alert("Unsupported file type. Supported: .pdf, .docx, .txt");
+          }
+        }
+        //Clear Inputs
+        document.getElementById("file-input").value = "";
+        document.getElementById("text-input").value = "";
+      }
+    </script>
+  </head>
+  <body>
+    <div id="welcome">
+      <h1>Welcome to ESSenCe,</h1>
+      <h3>Easily find scientific terms in your texts and documents</h3>
+    </div>
+    <div class="container">
+      <div class="input-fields">
+        <label for="text-input">Text Input:</label>
+        <input type="text" id="text-input" />
+        <label for="file-input">Document Input:</label>
+        <input type="file" id="file-input" />
+      </div>
+      <div class="play-button" onclick="updateIframe()">&#x25B6;</div>
+      <!--<div class="output-table">
+        <table>
+          <thead>
+            <tr>
+              <th>Column 1</th>
+              <th>Column 2</th>
+              <th>Column 3</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Row 1, Column 1</td>
+              <td>Row 1, Column 2</td>
+              <td>Row 1, Column 3</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>-->
+      <iframe id="extract_iframe" src="" seamless></iframe>
+    </div>
+  </body>
+</html>
