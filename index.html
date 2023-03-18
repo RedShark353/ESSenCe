@@ -7,6 +7,19 @@
     <script src="https://mozilla.github.io/pdf.js/build/pdf.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/mammoth@1.4.9/mammoth.browser.min.js"></script>
     <script>
+      //Update filename
+      document.addEventListener("DOMContentLoaded", function () {
+        var fileInput = document.getElementById("file-input");
+        var docNameP = document.getElementById("documentName");
+
+        fileInput.addEventListener("change", function (e) {
+          var file = fileInput.files[0];
+          // run your function here with the uploaded file
+          //console.log("File uploaded:", file.name);
+          docNameP.innerHTML = file.name;
+        });
+      });
+
       function makeRequest(url, text) {
         try {
           //console.log(url.length);
@@ -133,7 +146,42 @@
         //Clear Inputs
         document.getElementById("file-input").value = "";
         document.getElementById("text-input").value = "";
+        document.getElementById("documentName").innerHTML = "";
       }
+      /*
+      //Drag and drop file
+      var dropzone = document.getElementById("dropzone");
+
+      // Prevent default drag behaviors
+      ["dragenter", "dragover", "dragleave", "drop"].forEach((eventName) => {
+        dropzone.addEventListener(eventName, preventDefaults, false);
+        document.body.addEventListener(eventName, preventDefaults, false);
+      });
+
+      // Highlight drop zone when file is dragged over it
+      dropzone.addEventListener("dragover", highlight, false);
+      dropzone.addEventListener("dragleave", unhighlight, false);
+
+      // Handle dropped files
+      dropzone.addEventListener("drop", handleDrop, false);
+
+      function preventDefaults(e) {
+        e.preventDefault();
+        e.stopPropagation();
+      }
+
+      function highlight() {
+        dropzone.classList.add("highlight");
+      }
+
+      function unhighlight() {
+        dropzone.classList.remove("highlight");
+      }
+
+      function handleDrop(e) {
+        var files = e.dataTransfer.files;
+        document.getElementById("file-input").files = files;
+      }*/
     </script>
   </head>
   <body>
@@ -143,10 +191,16 @@
     </div>-->
     <div class="container">
       <div class="input-fields">
-        <label for="text-input">Text Input:</label>
+        <!--<div id="dropzone">
+          <p>Drag and drop a file here</p>
+          <input type="file" id="file-input" />
+        </div>-->
+        <label for="text-input">Enter text for analysis:</label>
         <input type="text" id="text-input" maxlength="6000" />
-        <label for="file-input">Document Input:</label>
+        <label>Or upload document</label>
+        <label for="file-input">&#x2b;</label>
         <input type="file" id="file-input" />
+        <p id="documentName"></p>
       </div>
       <div class="play-button" onclick="updateIframe()">&#x25B6;</div>
       <!--<div class="output-table">
