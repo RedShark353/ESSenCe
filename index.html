@@ -7,32 +7,64 @@
     <script src="https://mozilla.github.io/pdf.js/build/pdf.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/mammoth@1.4.9/mammoth.browser.min.js"></script>
     <script>
+      function makeRequest(url, text) {
+        try {
+          //console.log(url.length);
+          if (url.length >= 6460) {
+            alert(
+              "The text is too long!" +
+                " (" +
+                text.length +
+                " characters). Try using chunks of 6000 characters or less"
+            );
+          } else {
+            document.getElementById("extract_iframe").src = url;
+          }
+
+          /*if (response.status === 414) {
+            throw new Error("URI Too Long Error");
+          }
+          console.log(document.getElementById("extract_iframe").src);
+          //const response = url;*/
+        } catch (error) {
+          /*if (error. === "URI Too Long Error") {
+            console.log(
+              "The URI was too long. Please try again with a shorter URI."
+            );
+            */
+          alert("The text is too long! Try using smaller chunks of the text");
+        }
+      }
+
       function updateIframe() {
         var textInput = document.getElementById("text-input").value;
         var fileInput = document.getElementById("file-input").files[0];
-        var url = "http://tagger.jensenlab.org/ExtractPopup?document=";
+        var url = "https://tagger.jensenlab.org/ExtractPopup?document=";
 
         if (textInput) {
-          url += encodeURIComponent(textInput);
-          document.getElementById("extract_iframe").src =
+          url +=
+            encodeURIComponent(textInput) +
+            "&entity_types=-1+-2+-21+-22+-23+-25+-26+-27+-36+9606&auto_detect=0";
+          makeRequest(url, textInput);
+          /*document.getElementById("extract_iframe").src =
             url +
             "&entity_types=-1+-2+-21+-22+-23+-25+-26+-27+-36+9606&auto_detect=0";
-          console.log(document.getElementById("extract_iframe").src);
+          console.log(document.getElementById("extract_iframe").src);*/
         } else if (fileInput) {
           //get file name
           const fileName = fileInput.name.toLowerCase();
           console.log(fileName);
 
           var reader = new FileReader();
-          console.log("Ok");
 
           reader.onload = function (event) {
             if (fileName.endsWith(".txt") || fileName.endsWith(".text")) {
               url += encodeURIComponent(event.target.result);
-              document.getElementById("extract_iframe").src =
+              makeRequest(url, event.target.result);
+              /*document.getElementById("extract_iframe").src =
                 url +
                 "&entity_types=-1+-2+-21+-22+-23+-25+-26+-27+-36+9606&auto_detect=0";
-              console.log(document.getElementById("extract_iframe").src);
+              console.log(document.getElementById("extract_iframe").src);*/
             } else if (
               fileName.endsWith(".doc") ||
               fileName.endsWith(".docx")
@@ -42,12 +74,16 @@
                 .extractRawText({ arrayBuffer: reader.result })
                 .then((result) => {
                   text = result.value;
-                  url += text;
-                  console.log(url);
-                  document.getElementById("extract_iframe").src =
+                  //console.log(text.length);
+                  url +=
+                    text +
+                    "&entity_types=-1+-2+-21+-22+-23+-25+-26+-27+-36+9606&auto_detect=0";
+                  //console.log(url);
+                  makeRequest(url, text);
+                  /*document.getElementById("extract_iframe").src =
                     url +
                     "&entity_types=-1+-2+-21+-22+-23+-25+-26+-27+-36+9606&auto_detect=0";
-                  console.log(document.getElementById("extract_iframe").src);
+                  console.log(document.getElementById("extract_iframe").src);*/
                 })
                 .done();
             } else if (fileName.endsWith(".pdf")) {
@@ -56,7 +92,7 @@
               pdfjsLib.GlobalWorkerOptions.workerSrc =
                 "https://mozilla.github.io/pdf.js/build/pdf.worker.js";
               const loadingTask = pdfjsLib.getDocument(reader.result);
-              //let text = "";
+              let text = "";
 
               loadingTask.promise.then((pdf) => {
                 const numPages = pdf.numPages;
@@ -67,15 +103,17 @@
                         .map((item) => item.str)
                         .join(" ");
                       url += pageText + " ";
+                      text += pageText + " ";
                       if (i === numPages) {
+                        makeRequest(url);
                         //console.log(url);
                         //url += text;
-                        document.getElementById("extract_iframe").src =
+                        /*document.getElementById("extract_iframe").src =
                           url +
                           "&entity_types=-1+-2+-21+-22+-23+-25+-26+-27+-36+9606&auto_detect=0";
                         console.log(
                           document.getElementById("extract_iframe").src
-                        );
+                        );*/
                       }
                     });
                   });
@@ -99,14 +137,14 @@
     </script>
   </head>
   <body>
-    <div id="welcome">
+    <!--<div id="welcome">
       <h1>Welcome to ESSenCe,</h1>
       <h3>Easily find scientific terms in your texts and documents</h3>
-    </div>
+    </div>-->
     <div class="container">
       <div class="input-fields">
         <label for="text-input">Text Input:</label>
-        <input type="text" id="text-input" />
+        <input type="text" id="text-input" maxlength="6000" />
         <label for="file-input">Document Input:</label>
         <input type="file" id="file-input" />
       </div>
