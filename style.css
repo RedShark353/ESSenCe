@@ -32,11 +32,13 @@ body {
   background-color: #3a3838;
   border-radius: 10px;
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  color: #b7b4b4;
 }
 .input-fields label {
   margin-bottom: 10px;
   font-weight: bold;
-  color: white;
+  /*color: white;*/
+  text-align: left;
 }
 .input-fields input[type="text"],
 .input-fields input[type="file"] {
@@ -46,6 +48,13 @@ body {
   margin-bottom: 20px;
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
 }
+
+.input-fields input[type="text"] {
+  width: 80%;
+  height: 100px;
+  background-color: #797777;
+}
+
 .play-button {
   display: flex;
   align-items: center;
@@ -93,6 +102,28 @@ body {
   text-align: center;
 }
 
-.button_link {
-  background-color: #056208;
+/*#dropzone {
+  border: 2px dashed #bbb;
+  border-radius: 5px;
+  padding: 25px;
+  text-align: center;
+}
+
+#dropzone.highlight {
+  background-color: #eee;
+}*/
+label[for="file-input"] {
+  cursor: pointer;
+  font-size: 80px;
+  border: 2px dashed #bbb;
+  border-radius: 5px;
+  width: 80%;
+  height: 40%;
+  text-align: center;
+}
+
+#file-input {
+  opacity: 0;
+  position: absolute;
+  z-index: -1;
 }
